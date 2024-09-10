@@ -1,32 +1,27 @@
-# Prerequisites
-*.d
+# ignore dot files/directories
+.*
+!.gitignore
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
+*.autosave
+*.pyc
+*.user
+*~
+Thumbs.db
+tags
+tegra/
+bin/
+*.sdf
+*.opensdf
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+*.stamp
+*.depend
+*.rule
+*.tmp
+*/debug
+*.suo
+*.log
+*.tlog
+build
+node_modules
+CMakeSettings.json
+xcuserdata/
