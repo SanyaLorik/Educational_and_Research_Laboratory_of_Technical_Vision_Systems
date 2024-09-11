@@ -6,15 +6,12 @@
 #include <iostream>
 #include <thread>
 #include <cmath>
+#include <chrono>
 
 #include "HistogramValue.h"
 
 using namespace cv;
 using namespace std;
-
-/*
-* Расписать попунктно алгоритм хз здесь
-*/
 
 class Lbp
 {
@@ -24,63 +21,65 @@ private:
 	const int SIZE_IN_CELL = 9;
 	const int CROP_RATIO = 2;
 
-	Mat original;
-	Mat gray;
-	Mat* current;
+	Mat _original;
+	Mat _gray;
+	Mat* _current;
 
-	int rows;
-	int cols;
+	unordered_map<uint8_t, HistogramValue> _histogram_map;
+	int _histogramSize = 0;
 
-	unordered_map<uint8_t, HistogramValue> histogram;
-	int histogramSize = 0;
+	int _count_of_rows;
+	int _count_of_cols;
+
+	mutex _count_around_mutex;
 
 public:
 
 	Lbp(Mat* mat)
 	{
-		original = *mat;
-		current = &original;
+		_original = *mat;
+		_current = &_original;
 	}
 
 	Lbp(string fullPath)
 	{
-		original = imread(fullPath, IMREAD_UNCHANGED);
-		current = &original;
+		_original = imread(fullPath, IMREAD_UNCHANGED);
+		_current = &_original;
 	}
 
-	void Crop()
+	void crop()
 	{
-		int cellRows = original.rows / CROP_RATIO;
-		int cellCols = original.cols / CROP_RATIO;
+		int cellRows = _original.rows / CROP_RATIO;
+		int cellCols = _original.cols / CROP_RATIO;
 
-		rows = cellRows * CROP_RATIO;
-		cols = cellCols * CROP_RATIO;
+		_count_of_rows = cellRows * CROP_RATIO;
+		_count_of_cols = cellCols * CROP_RATIO;
 
-		Rect crop(0, 0, cols, rows);
+		Rect crop(0, 0, _count_of_cols, _count_of_rows);
 
-		original = original(crop).clone();
-		current = &original;
+		_original = _original(crop).clone();
+		_current = &_original;
 	}
 
-	Mat& GetCurrentMat()
+	Mat& getCurrentMat()
 	{
-		return *current;
+		return *_current;
 	}
 
-	void GrayScaleUsingAvarageParallel()
+	void grayScaleUsingAvarageParallel()
 	{
-		gray = original.clone();
-		current = &gray;
+		_gray = _original.clone();
+		_current = &_gray;
 
-		int count_of_core = GetCountOfCore();
+		int count_of_core = getCountOfCore();
 		std::thread* threads = new std::thread[count_of_core];
 
-		int count_of_rows = rows / count_of_core;
+		int count_of_rows = _count_of_rows / count_of_core;
 
 		for (int i = 0; i < count_of_core; i++)
 		{
 			int initial_y = i * count_of_rows; // Правильный расчет начальной строки
-			threads[i] = std::thread(&Lbp::GrayScaleUsingAvarage, this, initial_y, count_of_rows);
+			threads[i] = std::thread(&Lbp::grayScaleUsingAvarage, this, initial_y, count_of_rows);
 		}
 
 		for (int i = 0; i < count_of_core; i++)
@@ -89,18 +88,17 @@ public:
 		delete[] threads;
 	}
 
-
-	Mat* GrayScaleGradation()
+	Mat* grayScaleGradation()
 	{
-		gray = original.clone();
-		current = &gray;
+		_gray = _original.clone();
+		_current = &_gray;
 
-		int rows = gray.rows;
-		int cols = gray.cols;
+		int rows = _gray.rows;
+		int cols = _gray.cols;
 
 		for (int i = 0; i < rows; i++)
 		{
-			Vec3b* pxs = gray.ptr<Vec3b>(i);
+			Vec3b* pxs = _gray.ptr<Vec3b>(i);
 			for (int j = 0; j < cols; j++)
 			{
 				Vec3b color = pxs[j];
@@ -112,33 +110,39 @@ public:
 			}
 		}
 
-		return current;
+		return _current;
 	}
-
-	/* Мб сохранять внутри уже сделанные значения*/
-	HistogramValue* CountAround()
+	
+	HistogramValue* countAroundParallel() 
 	{
-		for (int y = 0; y < rows; y++)
+		int count_of_core = getCountOfCore();
+
+		int count_of_rows = _count_of_rows / count_of_core;
+		vector<thread> threads(count_of_core);
+
+		for (int i = 0; i < count_of_core; i++) 
 		{
-			for (int x = 0; x < cols; x++)
-			{
-				int number = CountLocalAround(x, y);
-				if (histogram.find(number) == histogram.end())
-					histogram[number] = HistogramValue(number);
-				else
-					histogram[number].Add();
-			}
+			int initial_y = i * count_of_rows;
+			threads[i] = thread(&Lbp::countAround, this, initial_y, count_of_rows);
 		}
 
-		histogramSize = histogram.size();
-		HistogramValue* values = new HistogramValue[histogramSize];
+		for (auto& t : threads) 
+			t.join();
 
-		int index = 0;
-		for (const auto& pair : histogram)
+		_histogramSize = _histogram_map.size();
+		HistogramValue* values = new HistogramValue[_histogramSize];
+
+		int count_of_histogram = _histogramSize / count_of_core;
+		vector<thread> fillThreads(count_of_core);
+
+		for (int i = 0; i < count_of_core; i++) 
 		{
-			values[index] = pair.second;
-			index++;
+			int initial_index = i * count_of_histogram;
+			fillThreads[i] = thread(&Lbp::fillHistogram, this, values, initial_index, count_of_histogram);
 		}
+
+		for (auto& t : fillThreads)
+			t.join();
 
 		return values;
 	}
@@ -146,7 +150,7 @@ public:
 private:
 
 	/* Тут мб оптимизровать - не каждую итерпцию обращаться к строке */
-	uint8_t CountLocalAround(int x, int y)
+	uint8_t countLocalAround(int x, int y)
 	{
 		const int length = 8;
 		tuple<int, int> offsets[length] =
@@ -157,7 +161,7 @@ private:
 		};
 
 		uint8_t result = 0;
-		int centrePixel = original.ptr<Vec3b>(y)[x][0];
+		int centrePixel = _original.ptr<Vec3b>(y)[x][0];
 
 		for (int i = 0; i < length; i++)
 		{
@@ -167,16 +171,16 @@ private:
 			if (y + y_offset < 0)
 				continue;
 
-			if (y + y_offset >= rows)
+			if (y + y_offset >= _count_of_rows)
 				continue;
 
 			if (x + x_offset < 0)
 				continue;
 
-			if (x + x_offset >= cols)
+			if (x + x_offset >= _count_of_cols)
 				continue;
 
-			int pxl = original.ptr<Vec3b>(y + y_offset)[x + x_offset][0];
+			int pxl = _original.ptr<Vec3b>(y + y_offset)[x + x_offset][0];
 			int number = centrePixel <= pxl ? 1 : 0;
 
 			result |= number;
@@ -186,26 +190,60 @@ private:
 		return result;
 	}
 
-	void GrayScaleUsingAvarage(int initial_y, int count_of_rows)
+	void countAround(int initial_y, int count_of_rows)
 	{
-		int rows = gray.rows;
-		int cols = gray.cols;
-		
-		int length = initial_y + count_of_rows;
-		for (int i = initial_y; i < length; i++)
+		int length_y = initial_y + count_of_rows;
+		for (int y = initial_y; y < length_y; y++)
 		{
-			Vec3b* pxs = gray.ptr<Vec3b>(i);
-			for (int j = 0; j < cols; j++)
+			for (int x = 0; x < _count_of_cols; x++)
 			{
-				Vec3b color = pxs[j];
-				int c = (color[0] + color[1] + color[2]) / 3;
-				pxs[j] = Vec3b(c, c, c);
+				int number = countLocalAround(x, y);
+
+				_count_around_mutex.lock();
+
+				if (_histogram_map.find(number) == _histogram_map.end())
+					_histogram_map[number] = HistogramValue(number);
+				else
+					_histogram_map[number].Add();
+
+				_count_around_mutex.unlock();
 			}
 		}
 	}
 
-	int GetCountOfCore()
+	void grayScaleUsingAvarage(int initial_y, int count_of_rows)
+	{
+		int rows = _gray.rows;
+		int cols = _gray.cols;
+		
+		int length_y = initial_y + count_of_rows;
+		for (int y = initial_y; y < length_y; y++)
+		{
+			Vec3b* pxs = _gray.ptr<Vec3b>(y);
+			for (int x = 0; x < cols; x++)
+			{
+				Vec3b color = pxs[x];
+				int c = (color[0] + color[1] + color[2]) / 3;
+				pxs[x] = Vec3b(c, c, c);
+			}
+		}
+	}
+
+	int getCountOfCore()
 	{
 		return thread::hardware_concurrency();
+	}
+
+	void fillHistogram(HistogramValue* values, int initial_index, int lenght_values)
+	{
+		int lenght = initial_index + lenght_values;
+		for (const auto& pair : _histogram_map)
+		{
+			if (lenght > initial_index)
+				return;
+
+			values[initial_index] = pair.second;
+			initial_index++;
+		}
 	}
 };
