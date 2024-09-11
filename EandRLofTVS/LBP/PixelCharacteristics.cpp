@@ -1,1 +1,0 @@
-#include "PixelCharacteristics.h"

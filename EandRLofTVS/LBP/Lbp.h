@@ -4,13 +4,10 @@
 #include <opencv2/opencv.hpp>
 
 #include <iostream>
+#include <thread>
 #include <cmath>
-#include <math.h>
 
 #include "HistogramValue.h"
-#include "PixelCharacteristics.h"
-#include "Cell.h"
-#include "Block.h"
 
 using namespace cv;
 using namespace std;
@@ -70,32 +67,28 @@ public:
 		return *current;
 	}
 
-	Mat* GrayScaleUsingAvarage()
+	void GrayScaleUsingAvarageParallel()
 	{
 		gray = original.clone();
 		current = &gray;
 
-		int rows = gray.rows;
-		int cols = gray.cols;
+		int count_of_core = GetCountOfCore();
+		std::thread* threads = new std::thread[count_of_core];
 
-		for (int i = 0; i < rows; i++)
+		int count_of_rows = rows / count_of_core;
+
+		for (int i = 0; i < count_of_core; i++)
 		{
-			Vec3b* pxs = gray.ptr<Vec3b>(i);
-			for (int j = 0; j < cols; j++)
-			{
-				Vec3b color = pxs[j];
-				int c = (color[0] + color[1] + color[2]) / 3;
-				pxs[j] = Vec3b(c, c, c);
-			}
+			int initial_y = i * count_of_rows; // ѕравильный расчет начальной строки
+			threads[i] = std::thread(&Lbp::GrayScaleUsingAvarage, this, initial_y, count_of_rows);
 		}
 
-		return current;
+		for (int i = 0; i < count_of_core; i++)
+			threads[i].join();
+
+		delete[] threads;
 	}
 
-	Mat* GrayScaleUsingAvarageParallel()
-	{
-		return nullptr;
-	}
 
 	Mat* GrayScaleGradation()
 	{
@@ -191,5 +184,28 @@ private:
 		}
 
 		return result;
+	}
+
+	void GrayScaleUsingAvarage(int initial_y, int count_of_rows)
+	{
+		int rows = gray.rows;
+		int cols = gray.cols;
+		
+		int length = initial_y + count_of_rows;
+		for (int i = initial_y; i < length; i++)
+		{
+			Vec3b* pxs = gray.ptr<Vec3b>(i);
+			for (int j = 0; j < cols; j++)
+			{
+				Vec3b color = pxs[j];
+				int c = (color[0] + color[1] + color[2]) / 3;
+				pxs[j] = Vec3b(c, c, c);
+			}
+		}
+	}
+
+	int GetCountOfCore()
+	{
+		return thread::hardware_concurrency();
 	}
 };

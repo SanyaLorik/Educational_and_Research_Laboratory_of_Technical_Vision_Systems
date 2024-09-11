@@ -16,7 +16,7 @@ int main()
 	Lbp lbp(name);
 
 	lbp.Crop();
-	lbp.GrayScaleUsingAvarage();
+	lbp.GrayScaleUsingAvarageParallel();
 	lbp.CountAround();
 
 	imshow("сжатчик", lbp.GetCurrentMat());

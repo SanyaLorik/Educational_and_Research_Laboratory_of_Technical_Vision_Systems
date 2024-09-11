@@ -133,19 +133,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Block.h" />
-    <ClInclude Include="Cell.h" />
     <ClInclude Include="HistogramValue.h" />
     <ClInclude Include="Lbp.h" />
-    <ClInclude Include="PixelCharacteristics.h" />
     <ClInclude Include="Source.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Block.cpp" />
-    <ClCompile Include="Cell.cpp" />
     <ClCompile Include="HistogramValue.cpp" />
     <ClCompile Include="Lbp.cpp" />
-    <ClCompile Include="PixelCharacteristics.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
