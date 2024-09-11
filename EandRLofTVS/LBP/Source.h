@@ -15,9 +15,11 @@ int main()
 	const string name = "C:/sobel.jpg";
 	Lbp lbp(name);
 
+	lbp.Crop();
+	lbp.GrayScaleUsingAvarage();
 	lbp.CountAround();
 
-	imshow("сжатчик", *lbp.GetCurrentMat());
+	imshow("сжатчик", lbp.GetCurrentMat());
 	waitKey(0);
 
 	return 0;
