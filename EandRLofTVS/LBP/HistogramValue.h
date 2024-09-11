@@ -1,23 +1,17 @@
-#include <iostream>
+#pragma once
 
-using namespace std;
+#include <cstdint>
 
-struct HistogramValue
+struct HistogramValue 
 {
 
 public:
-	uint8_t Value;
-	short Count = 1;
+    uint8_t Value;
+    short Count = 1;
 
-	HistogramValue() = default;
+    HistogramValue() = default;
 
-	HistogramValue(short value) : Value(value)
-	{
+    HistogramValue(short value);
 
-	}
-
-	void Add()
-	{
-		Count++;
-	}
+    void Add();
 };
