@@ -23,7 +23,6 @@
     <ClInclude Include="Cell.h" />
     <ClInclude Include="Hog.h" />
     <ClInclude Include="PixelCharacteristics.h" />
-    <ClInclude Include="Source.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Block.cpp" />

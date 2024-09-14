@@ -26,6 +26,7 @@ std::vector<std::vector<std::complex<double>>> dft2d(const std::vector<std::vect
 
     for (int u = 0; u < rows; ++u) {
         for (int v = 0; v < cols; ++v) {
+
             std::complex<double> sum(0.0, 0.0);
             for (int x = 0; x < rows; ++x) {
                 for (int y = 0; y < cols; ++y) {
@@ -33,6 +34,7 @@ std::vector<std::vector<std::complex<double>>> dft2d(const std::vector<std::vect
                     sum += image[x][y] * std::complex<double>(cos(theta), sin(theta));
                 }
             }
+
             spectrum[u][v] = sum;
         }
     }
