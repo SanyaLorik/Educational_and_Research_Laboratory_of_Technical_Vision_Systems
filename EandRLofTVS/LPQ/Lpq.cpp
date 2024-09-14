@@ -44,13 +44,33 @@ void Lpq::grayScaleUsingAvarageParallel()
 	for (int i = 0; i < count_of_core; i++)
 	{
 		int initial_y = i * count_of_rows; // ѕравильный расчет начальной строки
-		threads[i] = thread(&Lbp::grayScaleUsingAvarage, this, initial_y, count_of_rows);
+		threads[i] = thread(&Lpq::grayScaleUsingAvarage, this, initial_y, count_of_rows);
 	}
 
 	for (int i = 0; i < count_of_core; i++)
 		threads[i].join();
 
 	delete[] threads;
+}
+
+void Lpq::createHanningWindow()
+{
+	_hanning_window = new double* [_count_of_rows_hannah];
+
+	for (size_t i = 0; i < _count_of_rows_hannah; i++)
+		_hanning_window[i] = new double[_count_of_cols_hannah];
+
+	int y_indent = _count_of_rows_hannah / 2;
+	int x_indent = _count_of_cols_hannah / 2;
+
+	for (int y = -y_indent; y <= y_indent; y++)
+	{
+		for (int x = -x_indent; x <= x_indent; x++)
+		{
+			double value = formulaOfHannah(x, y);
+			_hanning_window[y + y_indent][x + x_indent] = value;
+		}
+	}
 }
 
 void Lpq::grayScaleUsingAvarage(int initial_y, int count_of_rows)
@@ -74,4 +94,11 @@ void Lpq::grayScaleUsingAvarage(int initial_y, int count_of_rows)
 int Lpq::getCountOfCore()
 {
 	return thread::hardware_concurrency();
+}
+
+double Lpq::formulaOfHannah(int x, int y)
+{
+	return 
+		0.5 * (1 - cos(2 * CV_PI * x / _count_of_cols_hannah)) * 
+		0.5 * (1 - cos(2 * CV_PI * y / _count_of_rows_hannah));
 }

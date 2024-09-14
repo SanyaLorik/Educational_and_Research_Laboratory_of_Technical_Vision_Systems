@@ -25,6 +25,11 @@ private:
 	int _count_of_rows;
 	int _count_of_cols;
 
+	// Hannah's window
+	const int _count_of_rows_hannah = 3;
+	const int _count_of_cols_hannah = 3;
+	double** _hanning_window;
+
 public:
 	Lpq(Mat* mat);
 
@@ -36,9 +41,13 @@ public:
 
 	void grayScaleUsingAvarageParallel();
 
+	void createHanningWindow();
+
 private:
 
 	void grayScaleUsingAvarage(int initial_y, int count_of_rows);
 
 	int getCountOfCore();
+	
+	double formulaOfHannah(int x, int y);
 };
