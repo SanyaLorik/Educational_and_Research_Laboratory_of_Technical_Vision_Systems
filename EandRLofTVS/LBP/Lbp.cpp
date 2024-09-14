@@ -37,14 +37,14 @@ void Lbp::grayScaleUsingAvarageParallel()
 	_current = &_gray;
 
 	int count_of_core = getCountOfCore();
-	std::thread* threads = new std::thread[count_of_core];
+	thread* threads = new thread[count_of_core];
 
 	int count_of_rows = _count_of_rows / count_of_core;
 
 	for (int i = 0; i < count_of_core; i++)
 	{
 		int initial_y = i * count_of_rows; // ѕравильный расчет начальной строки
-		threads[i] = std::thread(&Lbp::grayScaleUsingAvarage, this, initial_y, count_of_rows);
+		threads[i] = thread(&Lbp::grayScaleUsingAvarage, this, initial_y, count_of_rows);
 	}
 
 	for (int i = 0; i < count_of_core; i++)

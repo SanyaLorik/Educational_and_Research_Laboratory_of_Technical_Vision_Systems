@@ -9,17 +9,13 @@
 #include <thread>
 #include <cmath>
 
-#include "HistogramValue.h"
-
 using namespace cv;
 using namespace std;
 
-class Lbp
+class Lpq 
 {
 
 private:
-	double const PI = 3.1415926535f;
-	const int SIZE_IN_CELL = 9;
 	const int CROP_RATIO = 2;
 
 	Mat _original;
@@ -29,16 +25,10 @@ private:
 	int _count_of_rows;
 	int _count_of_cols;
 
-	unordered_map<uint8_t, HistogramValue> _histogram_map;
-	int _histogramSize = 0;
-
-	mutex _count_around_mutex;
-
 public:
+	Lpq(Mat* mat);
 
-	Lbp(Mat* mat);
-
-	Lbp(string fullPath);
+	Lpq(string fullPath);
 
 	void crop();
 
@@ -46,19 +36,9 @@ public:
 
 	void grayScaleUsingAvarageParallel();
 
-	Mat* grayScaleGradation();
-	
-	HistogramValue* countAroundParallel();
-
 private:
-
-	uint8_t countLocalAround(int x, int y);
-
-	void countAround(int initial_y, int count_of_rows);
 
 	void grayScaleUsingAvarage(int initial_y, int count_of_rows);
 
 	int getCountOfCore();
-
-	void fillHistogram(HistogramValue* values, int initial_index, int lenght_values);
 };
