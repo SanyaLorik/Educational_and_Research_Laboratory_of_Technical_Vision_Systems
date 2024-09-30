@@ -16,8 +16,8 @@ int main()
 
 	Hog hog(name);
 
-	int kernelSize = 9;
-	double sigma = 4;
+	int kernelSize = 3;
+	double sigma = 1;
 	int rate = 8;
 
 	hog.GrayScaleUsingAvarage();

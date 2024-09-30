@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{669e9f0e-723b-4fc3-a546-42df6f49a4e7}</ProjectGuid>
-    <RootNamespace>LPQ</RootNamespace>
+    <ProjectGuid>{80d04a63-d0e1-40e6-a76d-445d4c40c3d0}</ProjectGuid>
+    <RootNamespace>ZM</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -133,13 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Lpq.cpp" />
-    <ClCompile Include="Lpq_Fast.cpp" />
-    <ClCompile Include="Soruce.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Lpq.h" />
-    <ClInclude Include="Lpq_Fast.h" />
+    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

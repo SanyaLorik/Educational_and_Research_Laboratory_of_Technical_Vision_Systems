@@ -8,6 +8,7 @@
 #include <iostream>
 #include <thread>
 #include <cmath>
+#include <complex>
 
 using namespace cv;
 using namespace std;
@@ -22,12 +23,18 @@ private:
 	Mat _gray;
 	Mat* _current;
 
-	int _count_of_rows;
-	int _count_of_cols;
+	int _rows;
+	int _cols;
+
+	// 2D DFT
+	complex<float>** _dft;
+	const int _size_window = 3;
+	int _rows_window;
+	int _cols_window;
 
 	// Hannah's window
-	const int _count_of_rows_hannah = 3;
-	const int _count_of_cols_hannah = 3;
+	const int _rows_hannah = 3;
+	const int _cols_hannah = 3;
 	double** _hanning_window;
 
 public:
@@ -42,6 +49,8 @@ public:
 	void grayScaleUsingAvarageParallel();
 
 	void createHanningWindow();
+
+	void calculateDft();
 
 private:
 

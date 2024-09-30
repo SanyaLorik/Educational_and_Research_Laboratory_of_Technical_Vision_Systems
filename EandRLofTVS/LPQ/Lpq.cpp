@@ -1,5 +1,7 @@
 #include "Lpq.h"
 
+// public
+
 Lpq::Lpq(Mat* mat)
 {
 	_original = *mat;
@@ -17,10 +19,10 @@ void Lpq::crop()
 	int cellRows = _original.rows / CROP_RATIO;
 	int cellCols = _original.cols / CROP_RATIO;
 
-	_count_of_rows = cellRows * CROP_RATIO;
-	_count_of_cols = cellCols * CROP_RATIO;
+	_rows = cellRows * CROP_RATIO;
+	_cols = cellCols * CROP_RATIO;
 
-	Rect crop(0, 0, _count_of_cols, _count_of_rows);
+	Rect crop(0, 0, _cols, _rows);
 
 	_original = _original(crop).clone();
 	_current = &_original;
@@ -39,7 +41,7 @@ void Lpq::grayScaleUsingAvarageParallel()
 	int count_of_core = getCountOfCore();
 	thread* threads = new thread[count_of_core];
 
-	int count_of_rows = _count_of_rows / count_of_core;
+	int count_of_rows = _rows / count_of_core;
 
 	for (int i = 0; i < count_of_core; i++)
 	{
@@ -55,13 +57,13 @@ void Lpq::grayScaleUsingAvarageParallel()
 
 void Lpq::createHanningWindow()
 {
-	_hanning_window = new double* [_count_of_rows_hannah];
+	_hanning_window = new double* [_rows_hannah];
 
-	for (size_t i = 0; i < _count_of_rows_hannah; i++)
-		_hanning_window[i] = new double[_count_of_cols_hannah];
+	for (size_t i = 0; i < _rows_hannah; i++)
+		_hanning_window[i] = new double[_cols_hannah];
 
-	int y_indent = _count_of_rows_hannah / 2;
-	int x_indent = _count_of_cols_hannah / 2;
+	int y_indent = _rows_hannah / 2;
+	int x_indent = _cols_hannah / 2;
 
 	for (int y = -y_indent; y <= y_indent; y++)
 	{
@@ -72,6 +74,29 @@ void Lpq::createHanningWindow()
 		}
 	}
 }
+
+void Lpq::calculateDft()
+{
+	_rows_window = _original.rows / _size_window;
+	_cols_window = _original.cols / _size_window;
+
+	int rows = _rows_window * _size_window;
+	int cols = _cols_window * _size_window;
+
+	_dft = new complex<float>* [rows];
+
+	for (int y = 0; y < rows; y++)
+	{
+		_dft[y] = new complex<float>[cols];
+
+		for (int x = 0; x < cols; x++)
+		{
+
+		}
+	}
+}
+
+// private
 
 void Lpq::grayScaleUsingAvarage(int initial_y, int count_of_rows)
 {
@@ -99,6 +124,6 @@ int Lpq::getCountOfCore()
 double Lpq::formulaOfHannah(int x, int y)
 {
 	return 
-		0.5 * (1 - cos(2 * CV_PI * x / _count_of_cols_hannah)) * 
-		0.5 * (1 - cos(2 * CV_PI * y / _count_of_rows_hannah));
+		0.5 * (1 - cos(2 * CV_PI * x / _cols_hannah)) * 
+		0.5 * (1 - cos(2 * CV_PI * y / _rows_hannah));
 }
