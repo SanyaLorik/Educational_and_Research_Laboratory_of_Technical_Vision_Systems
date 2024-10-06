@@ -24,12 +24,18 @@
     <ClCompile Include="Lpq_Fast.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="ComplexNS.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lpq.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Lpq_Fast.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="ComplexNS.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

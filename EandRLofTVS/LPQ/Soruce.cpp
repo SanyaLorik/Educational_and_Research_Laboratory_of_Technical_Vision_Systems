@@ -81,49 +81,24 @@ cv::Mat stft(const cv::Mat& image, int window_rows, int window_cols, int step_ro
 }
 
 int main() {
-    /*
-        std::cout << "1" << std::endl;
-        // Загрузка изображения
-        cv::Mat image = cv::imread("C:/sobel.jpg", cv::IMREAD_GRAYSCALE);
-        if (image.empty()) {
-            std::cerr << "Ошибка загрузки изображения!" << std::endl;
-            return -1;
-        }
-
-        std::cout << "2 " << std::endl;
-        int window_rows = 32;
-        int window_cols = 32;
-        int step_rows = 16;
-        int step_cols = 16;
-
-        cv::Mat stft_result = stft(image, window_rows, window_cols, step_rows, step_cols);
-
-        std::cout << "3 " << std::endl;
-        // Вывод результата
-        std::cout << "STFT вычислено. Размер: " << stft_result.size() << std::endl;
-
-    */
-    //const string name = "C:/sobel.jpg";
+    
     const string name = "C:/sobel_1.jpg";
-    Lpq_Fast fast(name);
+    Lpq_Fast lpq(name);
+    lpq.calculalte_fft2d();
+    lpq.calculalte_inverse_fft2D();
 
-    int count_of_core = getCountOfCore();
 
-    int count_of_rows = fast.rows / count_of_core;
-    vector<thread> threads(count_of_core);
-
-    for (int i = 0; i < count_of_core; i++)
-    {
-        int initial_y = i * count_of_rows;
-        threads[i] = thread([&fast, initial_y, count_of_rows]() {
-            fast.Forward(initial_y, count_of_rows);
-            });
+    cv::Mat fft = cv::Mat(lpq.original.rows, lpq.original.cols, cv::IMREAD_GRAYSCALE);
+    for (int i = 0; i < lpq.invers.size(); i++) {
+        uchar* pixles = fft.ptr<uchar>(i);
+        for (int j = 0; j < lpq.invers[0].size(); j++) {
+            //cout << inverse_image[i][j] << " ";
+            pixles[j] = static_cast<uchar>(lpq.invers[i][j]);
+        }
     }
 
-    for (auto& t : threads)
-        t.join();
-
-    //imshow("awdaw", fast.);
+    cv::imshow("awda", fft);
     waitKey(0);
+
     return 0;
 }

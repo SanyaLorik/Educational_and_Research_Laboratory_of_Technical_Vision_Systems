@@ -133,11 +133,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ComplexNS.cpp" />
     <ClCompile Include="Lpq.cpp" />
     <ClCompile Include="Lpq_Fast.cpp" />
     <ClCompile Include="Soruce.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ComplexNS.h" />
     <ClInclude Include="Lpq.h" />
     <ClInclude Include="Lpq_Fast.h" />
   </ItemGroup>
