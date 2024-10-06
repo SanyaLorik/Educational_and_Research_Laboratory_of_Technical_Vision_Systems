@@ -29,6 +29,8 @@ public:
     int rows;
     int cols;
 
+    const int segment = 9;
+
     Lpq_Fast(string fullPath)
     {
         original = imread(fullPath, IMREAD_GRAYSCALE); 
@@ -62,37 +64,6 @@ public:
             for (int x = 0; x < cols; x++) 
                 forward[y][x] = ComplexNS(pixels[x], 0.0);
         }
-    }
-
-    // Рекурсивное вычисление БПФ одномерного массива
-    vector<ComplexNS> recursive_fft(const vector<ComplexNS>& input)
-    {
-        int n = input.size();
-        if (n == 1)
-            return { input[0] };
-        
-        int half = n / 2;
-
-        vector<ComplexNS> even(half);
-        vector<ComplexNS> odd(half);
-
-        for (int i = 0; i < half; i++) {
-            even[i] = input[2 * i];
-            odd[i] = input[2 * i + 1];
-        }
-
-        vector<ComplexNS> even_fft = recursive_fft(even);
-        vector<ComplexNS> odd_fft = recursive_fft(odd);
-
-        vector<ComplexNS> output(n);
-        for (int k = 0; k < half; k++) {
-            double angle = -2 * M_PI * k / n;
-            ComplexNS factor = exp_complex(angle);
-            output[k] = even_fft[k] + factor * odd_fft[k];
-            output[k + half] = even_fft[k] - factor * odd_fft[k];
-        }
-
-        return output;
     }
 
     // Двумерное БПФ с помощью одномерного БПФ
@@ -156,5 +127,125 @@ public:
             for (int j = 0; j < cols; j++)
                 invers[i][j] = inverse_F[i][j].real;
         }
+    }
+
+    vector<int>* CalculateHistogram(int kernelSize = 3, int step = 1)
+    {
+        vector<int>* histogram = new vector<int>(segment, 0);
+
+        int offset = kernelSize / 2;
+        int rowSize = rows - offset - offset;
+        int colsSize = cols - offset - offset;
+        vector<vector<int>> locals = vector<vector<int>>(rowSize, vector<int>(cols));
+
+        for (int y = offset; y < rows - offset; y += step)
+        {
+            for (int x = offset; x < cols - offset; x += step)
+            {
+                vector<vector<ComplexNS>> area = get_window(y, x, kernelSize);
+                fft2D(area, kernelSize);
+                vector<int> local = get_local_histogram(area);
+
+                locals[x - offset, y - offset] = local;
+            }
+        }
+
+        sum_locals_histograms(*histogram, locals);
+
+        return histogram;
+    }
+
+    vector<vector<ComplexNS>> get_window(int y, int x, int kernelSize) 
+    {
+        vector<vector<ComplexNS>> window = vector<vector<ComplexNS>>(kernelSize, vector<ComplexNS>(kernelSize));
+
+        int half = kernelSize / 2;
+        for (int yk = -half; yk <= half; yk++)
+        {
+            uchar* pixels = original.ptr<uchar>(y + yk);
+            for (int xk = -half; xk <= half; xk++)
+                window[yk + half][xk + half] = ComplexNS(pixels[x + xk], 0.0);
+        }
+
+        return window;
+    }
+
+    void fft2D(vector<vector<ComplexNS>>& window, int kernelSize)
+    {
+        // БПФ по строкам
+        for (int i = 0; i < kernelSize; i++)
+            window[i] = recursive_fft(window[i]);
+
+        // БПФ по столбцам
+        for (int j = 0; j < kernelSize; j++) {
+            vector<ComplexNS> column(kernelSize);
+            for (int i = 0; i < kernelSize; i++)
+                column[i] = window[i][j];
+
+            column = recursive_fft(column);
+            for (int i = 0; i < kernelSize; i++)
+                window[i][j] = column[i];
+        }
+    }
+
+    vector<int> get_local_histogram(const vector<vector<ComplexNS>>& fft2d)
+    {
+        vector<int> histogram = vector<int>(segment, 0);
+        const float ratio = 2.0f * M_PI / segment;
+
+        for (int y = 0; y < fft2d.size(); y++)
+        {
+            for (int x = 0; x < fft2d[y].size(); x++)
+            {
+                double phase_normalized = fmod(fft2d[y][x].phase(), 2.0 * M_PI);
+                int index = (int)round((phase_normalized / (2.0 * M_PI)) * segment) % segment;
+                //cout << index << endl;
+                histogram[index]++;
+            }
+        }
+
+        return histogram;
+    }
+
+    void sum_locals_histograms(vector<int>& histogram, const vector<vector<int>>& locals)
+    {
+        for (int y = 0; y < locals.size(); y++)
+        {
+            for (int x = 0; x < locals[y].size(); x++)
+            {
+                for (int i = 0; i < histogram.size(); i++)
+                    histogram[i] += locals[y][i];
+            }
+        }
+    }
+
+    // Рекурсивное вычисление БПФ одномерного массива
+    vector<ComplexNS> recursive_fft(const vector<ComplexNS>& input) {
+        int n = input.size();
+        if (n == 1)
+            return { input[0] };
+
+        int half = n / 2;
+
+        vector<ComplexNS> even(half);
+        vector<ComplexNS> odd(half);
+
+        for (int i = 0; i < half; i++) {
+            even[i] = input[2 * i];
+            odd[i] = input[2 * i + 1];
+        }
+
+        vector<ComplexNS> even_fft = recursive_fft(even);
+        vector<ComplexNS> odd_fft = recursive_fft(odd);
+
+        vector<ComplexNS> output(n);
+        for (int k = 0; k < half; k++) {
+            double angle = -2 * M_PI * k / n;
+            ComplexNS factor = exp_complex(angle);
+            output[k] = even_fft[k] + factor * odd_fft[k];
+            output[k + half] = even_fft[k] - factor * odd_fft[k];
+        }
+
+        return output;
     }
 };

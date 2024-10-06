@@ -17,6 +17,8 @@ struct ComplexNS
 	ComplexNS operator*(const double& c) const;
 
 	ComplexNS conjugate() const;
+
+	double phase() const;
 }; 
 
 ComplexNS exp_complex(double angle);

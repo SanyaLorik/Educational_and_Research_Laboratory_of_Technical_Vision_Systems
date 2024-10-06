@@ -82,7 +82,7 @@ cv::Mat stft(const cv::Mat& image, int window_rows, int window_cols, int step_ro
 
 int main() {
     
-    const string name = "C:/sobel_1.jpg";
+    const string name = "C:/sobel_2.jpg";
     Lpq_Fast lpq(name);
     lpq.calculalte_fft2d();
     lpq.calculalte_inverse_fft2D();
@@ -96,7 +96,12 @@ int main() {
             pixles[j] = static_cast<uchar>(lpq.invers[i][j]);
         }
     }
-
+    vector<int> histogram = *lpq.CalculateHistogram();
+    for (size_t i = 0; i < histogram.size(); i++)
+    {
+        cout << histogram[i] << " ";
+    }
+    cout << endl;
     cv::imshow("awda", fft);
     waitKey(0);
 
