@@ -29,7 +29,7 @@ private:
 	int _rows;
 	int _cols;
 
-	unordered_map<uint8_t, HistogramValue> _histogram_map = unordered_map<uint8_t, HistogramValue>(128);
+	unordered_map<uint8_t, HistogramValue> _histogram_map = unordered_map<uint8_t, HistogramValue>(256);
 	int _histogramSize = 0;
 
 	mutex _count_around_mutex;
