@@ -95,7 +95,7 @@ HistogramValue* Lbp::countAroundParallel()
 		t.join();
 
 	_histogramSize = _histogram_map.size();
-	HistogramValue* values = new HistogramValue[_histogramSize]{ 0 };
+	HistogramValue* values = new HistogramValue[_histogramSize] { HistogramValue(0)};
 
 	int count_of_histogram = _histogramSize / count_of_core;
 	vector<thread> fillThreads(count_of_core);
