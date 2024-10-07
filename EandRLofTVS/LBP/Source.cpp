@@ -1,10 +1,13 @@
 #include "Source.h"
+#include "../LE/ComplexNS.h"
 
 int main()
 {
 	const string name = "C:/sobel.jpg";
 	Lbp lbp(name);
-
+	ComplexNS a = ComplexNS(1, 2);
+	ComplexNS B = ComplexNS(1, 2);
+	ComplexNS C = a + B;
 	lbp.crop();
 
 	auto now = std::chrono::system_clock::now();

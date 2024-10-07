@@ -16,7 +16,7 @@
 using namespace cv;
 using namespace std;
 
-class Lpq_Fast
+class Ft
 {
     const double M_PI = 3.1415926535897;
 
@@ -31,7 +31,7 @@ public:
 
     const int segment = 9;
 
-    Lpq_Fast(string fullPath)
+    Ft(string fullPath)
     {
         original = imread(fullPath, IMREAD_GRAYSCALE);
 
@@ -39,7 +39,7 @@ public:
         cols = original.cols;
     }
 
-    ~Lpq_Fast()
+    ~Ft()
     {
 
     }

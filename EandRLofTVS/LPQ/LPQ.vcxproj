@@ -133,15 +133,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ComplexNS.cpp" />
     <ClCompile Include="Lpq.cpp" />
-    <ClCompile Include="Lpq_Fast.cpp" />
     <ClCompile Include="Soruce.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ComplexNS.h" />
     <ClInclude Include="Lpq.h" />
-    <ClInclude Include="Lpq_Fast.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LE\LE.vcxproj">
+      <Project>{45463367-b29d-452a-a34b-58f943276116}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

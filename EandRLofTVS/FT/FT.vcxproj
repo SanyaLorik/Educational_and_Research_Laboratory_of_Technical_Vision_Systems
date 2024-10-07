@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{8c9b84af-0696-44f0-a46d-85fd6bc74397}</ProjectGuid>
-    <RootNamespace>LBP</RootNamespace>
+    <ProjectGuid>{65f56d99-11a5-4a6d-a871-3133de4ee11e}</ProjectGuid>
+    <RootNamespace>FT</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -133,19 +133,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="HistogramValue.h" />
-    <ClInclude Include="Lbp.h" />
-    <ClInclude Include="Source.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="HistogramValue.cpp" />
-    <ClCompile Include="Lbp.cpp" />
-    <ClCompile Include="Source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LE\LE.vcxproj">
-      <Project>{45463367-b29d-452a-a34b-58f943276116}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

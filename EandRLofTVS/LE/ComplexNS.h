@@ -3,6 +3,8 @@
 // ComplexNS -> Complex Nothing Superfluous (ничего лишнего)
 struct ComplexNS
 {
+
+public:
 	double real;
 	double imag;
 
@@ -19,6 +21,6 @@ struct ComplexNS
 	ComplexNS conjugate() const;
 
 	double phase() const;
-}; 
+};
 
 ComplexNS exp_complex(double angle);

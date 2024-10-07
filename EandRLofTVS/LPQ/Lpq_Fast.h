@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <vector>
 
-#include "ComplexNS.h"
+#include "../LE/ComplexNS.h"
 
 using namespace cv;
 using namespace std;
@@ -190,22 +190,22 @@ public:
 
     vector<int> get_local_histogram(const vector<vector<ComplexNS>>& fft2d)
     {
-        vector<int> histogram = vector<int>(segment, 0);
+        vector<int> histogram(segment, 0);
         const float ratio = 2.0f * M_PI / segment;
 
         for (int y = 0; y < fft2d.size(); y++)
         {
             for (int x = 0; x < fft2d[y].size(); x++)
             {
-                double phase_normalized = fmod(fft2d[y][x].phase(), 2.0 * M_PI);
-                int index = (int)round((phase_normalized / (2.0 * M_PI)) * segment) % segment;
-                //cout << index << endl;
+                float phase_value = fft2d[y][x].phase();
+                int index = static_cast<int>(fmod(phase_value / ratio + segment, segment));
                 histogram[index]++;
             }
         }
 
         return histogram;
     }
+
 
     void sum_locals_histograms(vector<int>& histogram, const vector<vector<int>>& locals)
     {
