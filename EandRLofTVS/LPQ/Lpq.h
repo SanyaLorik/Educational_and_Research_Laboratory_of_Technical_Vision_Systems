@@ -16,7 +16,7 @@
 using namespace cv;
 using namespace std;
 
-class Lpq_Fast
+class Lpq
 {
     const double M_PI = 3.1415926535897;
 
@@ -29,9 +29,9 @@ public:
     int rows;
     int cols;
 
-    const int segment = 9;
+    const int segment = 8;
 
-    Lpq_Fast(string fullPath)
+    Lpq(string fullPath)
     {
         original = imread(fullPath, IMREAD_GRAYSCALE);
 
@@ -39,7 +39,7 @@ public:
         cols = original.cols;
     }
 
-    ~Lpq_Fast()
+    ~Lpq()
     {
 
     }
@@ -129,7 +129,7 @@ public:
         }
     }
 
-    vector<int>* CalculateHistogram(int kernelSize = 3, int step = 1)
+    vector<int>* CalculateHistogram(int kernelSize = 4, int step = 1)
     {
         vector<int>* histogram = new vector<int>(segment, 0);
 
@@ -160,10 +160,11 @@ public:
         vector<vector<ComplexNS>> window = vector<vector<ComplexNS>>(kernelSize, vector<ComplexNS>(kernelSize));
 
         int half = kernelSize / 2;
-        for (int yk = -half; yk <= half; yk++)
+
+        for (int yk = -half; yk < half; yk++)
         {
             uchar* pixels = original.ptr<uchar>(y + yk);
-            for (int xk = -half; xk <= half; xk++)
+            for (int xk = -half; xk < half; xk++)
                 window[yk + half][xk + half] = ComplexNS(pixels[x + xk], 0.0);
         }
 
@@ -205,7 +206,6 @@ public:
 
         return histogram;
     }
-
 
     void sum_locals_histograms(vector<int>& histogram, const vector<vector<int>>& locals)
     {

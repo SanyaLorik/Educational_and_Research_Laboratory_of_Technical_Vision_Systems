@@ -4,7 +4,7 @@
 #include <complex>
 #include <cmath>
 #include <thread>
-#include "Lpq_Fast.h"
+#include "Lpq.h"
 
 using namespace std;
 using namespace cv;
@@ -83,10 +83,9 @@ cv::Mat stft(const cv::Mat& image, int window_rows, int window_cols, int step_ro
 int main() {
     
     const string name = "C:/sobel_1.jpg";
-    Lpq_Fast lpq(name);
+    Lpq lpq(name);
     lpq.calculalte_fft2d();
     lpq.calculalte_inverse_fft2D();
-
 
     cv::Mat fft = cv::Mat(lpq.original.rows, lpq.original.cols, cv::IMREAD_GRAYSCALE);
     for (int i = 0; i < lpq.invers.size(); i++) {
