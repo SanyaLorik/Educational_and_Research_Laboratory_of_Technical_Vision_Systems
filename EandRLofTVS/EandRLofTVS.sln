@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FT", "FT\FT.vcxproj", "{65F
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LE", "LE\LE.vcxproj", "{45463367-B29D-452A-A34B-58F943276116}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LBP_CUDA", "..\..\..\CUDA\LBP_CUDA\LBP_CUDA\LBP_CUDA.vcxproj", "{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{45463367-B29D-452A-A34B-58F943276116}.Release|x64.Build.0 = Release|x64
 		{45463367-B29D-452A-A34B-58F943276116}.Release|x86.ActiveCfg = Release|Win32
 		{45463367-B29D-452A-A34B-58F943276116}.Release|x86.Build.0 = Release|Win32
+		{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}.Debug|x64.ActiveCfg = Debug|x64
+		{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}.Debug|x64.Build.0 = Debug|x64
+		{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}.Debug|x86.ActiveCfg = Debug|x64
+		{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}.Debug|x86.Build.0 = Debug|x64
+		{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}.Release|x64.ActiveCfg = Release|x64
+		{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}.Release|x64.Build.0 = Release|x64
+		{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}.Release|x86.ActiveCfg = Release|x64
+		{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

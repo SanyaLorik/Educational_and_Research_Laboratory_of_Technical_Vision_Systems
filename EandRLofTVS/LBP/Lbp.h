@@ -29,7 +29,7 @@ private:
 	int _rows;
 	int _cols;
 
-	unordered_map<uint8_t, HistogramValue> _histogram_map = unordered_map<uint8_t, HistogramValue>(256);
+	unordered_map<unsigned char, HistogramValue> _histogram_map = unordered_map<unsigned char, HistogramValue>(256);
 	int _histogramSize = 0;
 
 	mutex _count_around_mutex;
@@ -52,7 +52,7 @@ public:
 
 private:
 
-	uint8_t countLocalAround(int x, int y);
+	unsigned char countLocalAround(int x, int y);
 
 	void countAround(int initial_y, int count_of_rows);
 

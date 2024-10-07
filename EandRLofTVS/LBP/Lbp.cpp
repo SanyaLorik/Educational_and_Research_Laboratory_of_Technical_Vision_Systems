@@ -95,7 +95,7 @@ HistogramValue* Lbp::countAroundParallel()
 		t.join();
 
 	_histogramSize = _histogram_map.size();
-	HistogramValue* values = new HistogramValue[_histogramSize];
+	HistogramValue* values = new HistogramValue[_histogramSize]{ 0 };
 
 	int count_of_histogram = _histogramSize / count_of_core;
 	vector<thread> fillThreads(count_of_core);
@@ -112,7 +112,7 @@ HistogramValue* Lbp::countAroundParallel()
 	return values;
 }
 
-uint8_t Lbp::countLocalAround(int x, int y)
+unsigned char Lbp::countLocalAround(int x, int y)
 {
 	const int length = 8;
 	tuple<int, int> offsets[length] =
@@ -122,7 +122,7 @@ uint8_t Lbp::countLocalAround(int x, int y)
 		{ -1, -1 }, { -1, 0 }
 	};
 
-	uint8_t result = 0;
+	unsigned char result = 0;
 	int centrePixel = _original.ptr<Vec3b>(y)[x][0];
 
 	for (int i = 0; i < length; i++)
@@ -144,9 +144,9 @@ uint8_t Lbp::countLocalAround(int x, int y)
 
 		int pxl = _original.ptr<Vec3b>(y + y_offset)[x + x_offset][0];
 		int number = centrePixel <= pxl ? 1 : 0;
-
-		result <<= 1;
-		result |= number;
+		result |= (1 << i);
+		//result <<= 1;
+		//result |= number;
 	}
 
 	return result;
