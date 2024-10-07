@@ -3,7 +3,7 @@
 
 int main()
 {
-	const string name = "C:/sobel.jpg";
+	const string name = "C:/sobel_1.jpg";
 	Lbp lbp(name);
 	ComplexNS a = ComplexNS(1, 2);
 	ComplexNS B = ComplexNS(1, 2);

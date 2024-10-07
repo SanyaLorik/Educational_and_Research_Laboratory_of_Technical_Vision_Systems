@@ -17,10 +17,10 @@ void Lbp::crop()
 	int cellRows = _original.rows / CROP_RATIO;
 	int cellCols = _original.cols / CROP_RATIO;
 
-	_count_of_rows = cellRows * CROP_RATIO;
-	_count_of_cols = cellCols * CROP_RATIO;
+	_rows = cellRows * CROP_RATIO;
+	_cols = cellCols * CROP_RATIO;
 
-	Rect crop(0, 0, _count_of_cols, _count_of_rows);
+	Rect crop(0, 0, _cols, _rows);
 
 	_original = _original(crop).clone();
 	_current = &_original;
@@ -39,7 +39,7 @@ void Lbp::grayScaleUsingAvarageParallel()
 	int count_of_core = getCountOfCore();
 	thread* threads = new thread[count_of_core];
 
-	int count_of_rows = _count_of_rows / count_of_core;
+	int count_of_rows = _rows / count_of_core;
 
 	for (int i = 0; i < count_of_core; i++)
 	{
@@ -82,7 +82,7 @@ HistogramValue* Lbp::countAroundParallel()
 {
 	int count_of_core = getCountOfCore();
 
-	int count_of_rows = _count_of_rows / count_of_core;
+	int count_of_rows = _rows / count_of_core;
 	vector<thread> threads(count_of_core);
 
 	for (int i = 0; i < count_of_core; i++)
@@ -133,20 +133,20 @@ uint8_t Lbp::countLocalAround(int x, int y)
 		if (y + y_offset < 0)
 			continue;
 
-		if (y + y_offset >= _count_of_rows)
+		if (y + y_offset >= _rows)
 			continue;
 
 		if (x + x_offset < 0)
 			continue;
 
-		if (x + x_offset >= _count_of_cols)
+		if (x + x_offset >= _cols)
 			continue;
 
 		int pxl = _original.ptr<Vec3b>(y + y_offset)[x + x_offset][0];
 		int number = centrePixel <= pxl ? 1 : 0;
 
-		result |= number;
 		result <<= 1;
+		result |= number;
 	}
 
 	return result;
@@ -157,7 +157,7 @@ void Lbp::countAround(int initial_y, int count_of_rows)
 	int length_y = initial_y + count_of_rows;
 	for (int y = initial_y; y < length_y; y++)
 	{
-		for (int x = 0; x < _count_of_cols; x++)
+		for (int x = 0; x < _cols; x++)
 		{
 			int number = countLocalAround(x, y);
 
@@ -166,7 +166,7 @@ void Lbp::countAround(int initial_y, int count_of_rows)
 			if (_histogram_map.find(number) == _histogram_map.end())
 				_histogram_map[number] = HistogramValue(number);
 			else
-				_histogram_map[number].Add();
+				_histogram_map[number].add();
 
 			_count_around_mutex.unlock();
 		}

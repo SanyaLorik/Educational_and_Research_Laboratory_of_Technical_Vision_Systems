@@ -20,11 +20,11 @@ int main()
 	double sigma = 1;
 	int rate = 8;
 
-	hog.GrayScaleUsingAvarage();
-	hog.Gauss(kernelSize, sigma);
-	hog.Sobel();
+	hog.grayScaleUsingAvarage();
+	hog.gauss(kernelSize, sigma);
+	hog.sobel();
 
-	imshow("—жатчик", *hog.GetCurrentMat());
+	imshow("—жатчик", *hog.getCurrentMat());
 	int k = waitKey(0);
 
 	return 0;

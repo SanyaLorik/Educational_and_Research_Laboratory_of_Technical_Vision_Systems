@@ -11,17 +11,17 @@ private:
 	const static int const SIZE_IN_CELL = 9;
 
 public:
-	int histogram[SIZE_IN_CELL];
-	int size = 0;
-	int index = 0;
+	int Histogram[SIZE_IN_CELL];
+	int Size = 0;
+	int Index = 0;
 
 public:
 
-	Cell() : size(0), index(0) {}
+	Cell() : Size(0), Index(0) {}
 
 	Cell(int size);
 
-	void Add(PixelCharacteristics pxlChrst);
+	void add(PixelCharacteristics pxlChrst);
 
-	void AddToHistogram(PixelCharacteristics pxlChrst);
+	void addToHistogram(PixelCharacteristics pxlChrst);
 };

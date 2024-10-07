@@ -13,5 +13,5 @@ public:
 
     HistogramValue(short value);
 
-    void Add();
+    void add();
 };

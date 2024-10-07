@@ -3,8 +3,8 @@
 class PixelCharacteristics
 {
 public:
-	int magnitude;
-	int orientation;
+	int Magnitude;
+	int Orientation;
 
 	PixelCharacteristics() = default;
 

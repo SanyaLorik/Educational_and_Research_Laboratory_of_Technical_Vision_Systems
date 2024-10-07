@@ -11,11 +11,11 @@ class Block
 public:
     const int SIZE_IN_CELL = 9;
 
-    float* histogram;
-    int size = 0;
-    int index = 0;
+    float* Histogram;
+    int Size = 0;
+    int Index = 0;
 
-    Block() : size(0), index(0), histogram(nullptr) {}
+    Block() : Size(0), Index(0), Histogram(nullptr) {}
 
     Block(int size);
 

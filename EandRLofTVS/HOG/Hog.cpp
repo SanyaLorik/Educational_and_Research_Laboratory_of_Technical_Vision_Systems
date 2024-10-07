@@ -2,61 +2,61 @@
 
 Hog::Hog(Mat* mat)
 {
-	original = *mat;
-	current = &original;
+	_original = *mat;
+	_current = &_original;
 
-	CropOriginal();
+	cropOriginal();
 }
 
 Hog::Hog(string fullPath)
 {
-	original = imread(fullPath, IMREAD_UNCHANGED);
-	current = &original;
+	_original = imread(fullPath, IMREAD_UNCHANGED);
+	_current = &_original;
 
-	CropOriginal();
+	cropOriginal();
 }
 
-void Hog::CropOriginal(int rate, int blockSize)
+void Hog::cropOriginal(int rate, int blockSize)
 {
-	this->rate = rate;
-	this->blockSize = blockSize;
+	this->_rate = rate;
+	this->_block_size = blockSize;
 
-	cellRows = original.rows / rate;
-	cellCols = original.cols / rate;
+	_cell_rows = _original.rows / rate;
+	_cell_cols = _original.cols / rate;
 
-	int rows = cellRows * rate;
-	int cols = cellCols * rate;
+	int rows = _cell_rows * rate;
+	int cols = _cell_cols * rate;
 
 	Rect crop(0, 0, cols, rows);
 
-	cells = new Cell[cellRows * cellCols];
-	fill(cells, cells + (cellRows * cellCols), Cell(rate));
+	_cells = new Cell[_cell_rows * _cell_cols];
+	fill(_cells, _cells + (_cell_rows * _cell_cols), Cell(rate));
 
-	blockRows = cellRows - (blockSize - 1);
-	blockCols = cellCols - (blockSize - 1);
-	blocks = new Block[blockRows * blockCols];
-	fill(blocks, blocks + (blockRows * blockCols), Block(blockSize));
+	_block_rows = _cell_rows - (blockSize - 1);
+	_block_cols = _cell_cols - (blockSize - 1);
+	_blocks = new Block[_block_rows * _block_cols];
+	fill(_blocks, _blocks + (_block_rows * _block_cols), Block(blockSize));
 
-	original = original(crop).clone();
-	current = &original;
+	_original = _original(crop).clone();
+	_current = &_original;
 }
 
-Mat* Hog::GetCurrentMat()
+Mat* Hog::getCurrentMat()
 {
-	return current;
+	return _current;
 }
 
-Mat* Hog::GrayScaleUsingAvarage()
+Mat* Hog::grayScaleUsingAvarage()
 {
-	gray = original.clone();
-	current = &gray;
+	_gray = _original.clone();
+	_current = &_gray;
 
-	int rows = gray.rows;
-	int cols = gray.cols;
+	int rows = _gray.rows;
+	int cols = _gray.cols;
 
 	for (int i = 0; i < rows; i++)
 	{
-		Vec3b* pxs = gray.ptr<Vec3b>(i);
+		Vec3b* pxs = _gray.ptr<Vec3b>(i);
 		for (int j = 0; j < cols; j++)
 		{
 			Vec3b color = pxs[j];
@@ -65,20 +65,20 @@ Mat* Hog::GrayScaleUsingAvarage()
 		}
 	}
 
-	return current;
+	return _current;
 }
 
-Mat* Hog::Gauss(int kernelSize, double sigma)
+Mat* Hog::gauss(int kernelSize, double sigma)
 {
-	double** kernel = CreateGaussianKernel(kernelSize, sigma);
-	current = ApplyConvolution(kernel, kernelSize);
+	double** kernel = createGaussianKernel(kernelSize, sigma);
+	_current = applyConvolution(kernel, kernelSize);
 
-	return current;
+	return _current;
 }
 
-Mat* Hog::Sobel()
+Mat* Hog::sobel()
 {
-	Mat* sobel = new Mat((*current).clone());
+	Mat* sobel = new Mat((*_current).clone());
 
 	const int size = 3;
 
@@ -89,7 +89,7 @@ Mat* Hog::Sobel()
 				new double[size] { 1, 2, 1},
 		};
 
-	double** mask_y = Transpose(mask_x, size, size);
+	double** mask_y = transpose(mask_x, size, size);
 
 	int rows = sobel->rows;
 	int cols = sobel->cols;
@@ -102,8 +102,8 @@ Mat* Hog::Sobel()
 			int r_x = 0, g_x = 0, b_x = 0;
 			int r_y = 0, g_y = 0, b_y = 0;
 
-			ApplySobelMask(x, y, mask_x, &r_x, &g_x, &b_x);
-			ApplySobelMask(x, y, mask_y, &r_y, &g_y, &b_y);
+			applySobelMask(x, y, mask_x, &r_x, &g_x, &b_x);
+			applySobelMask(x, y, mask_y, &r_y, &g_y, &b_y);
 
 			int r = sqrt(r_x * r_x + r_y * r_y);
 			int g = sqrt(g_x * g_x + g_y * g_y);
@@ -116,8 +116,8 @@ Mat* Hog::Sobel()
 			pxs_sobel[x] = mask;
 
 			//int index = (y / (rate * rate)) * cols + (x / (rate * rate));
-			int indexCell = (int)(y / rate) * (int)(cols / rate) + (int)(x / rate);
-			cells[indexCell].Add(PixelCharacteristics(r, orientation));
+			int indexCell = (int)(y / _rate) * (int)(cols / _rate) + (int)(x / _rate);
+			_cells[indexCell].add(PixelCharacteristics(r, orientation));
 		}
 	}
 
@@ -129,28 +129,28 @@ Mat* Hog::Sobel()
 	delete[] mask_x;
 	delete[] mask_y;
 
-	current = sobel;
-	return current;
+	_current = sobel;
+	return _current;
 }
 
-void Hog::FillBlocks()
+void Hog::fillBlocks()
 {
 	int indexBlock = 0;
 
-	for (int x = 0; x < blockRows; x++)
+	for (int x = 0; x < _block_rows; x++)
 	{
-		for (int y = 0; y < blockCols; y++)
+		for (int y = 0; y < _block_cols; y++)
 		{
 			int indexCell = indexBlock;
-			for (int yCounter = 0; yCounter < blockSize; yCounter++)
+			for (int yCounter = 0; yCounter < _block_size; yCounter++)
 			{
-				for (int xCounter = 0; xCounter < blockSize; xCounter++)
+				for (int xCounter = 0; xCounter < _block_size; xCounter++)
 				{
-					blocks[indexBlock].Add(cells[indexCell].histogram);
+					_blocks[indexBlock].Add(_cells[indexCell].Histogram);
 					indexCell++;
 				}
 
-				indexCell = indexBlock + cellCols;
+				indexCell = indexBlock + _cell_cols;
 			}
 
 			indexBlock++;
@@ -158,21 +158,21 @@ void Hog::FillBlocks()
 	}
 }
 
-float* Hog::GetHistogram()
+float* Hog::getHistogram()
 {
 	/*
 	* может быть очищать паммять
 	* delete[] blockHistogram;
 	*/
-	int lengtHistogram = (blockRows * blockCols) * (blockSize * blockSize) * SIZE_IN_CELL;
+	int lengtHistogram = (_block_rows * _block_cols) * (_block_size * _block_size) * SIZE_IN_CELL;
 	float* histogram = new float[lengtHistogram];
-	int lengthBlock = blockRows * blockCols;
+	int lengthBlock = _block_rows * _block_cols;
 
 	int index = 0;
 
 	for (int i = 0; i < lengthBlock; i++)
 	{
-		Block block = blocks[i];
+		Block block = _blocks[i];
 		int size = block.CalculateSize();
 		float* blockHistogram = block.NormalizeHistogram();
 
@@ -186,10 +186,10 @@ float* Hog::GetHistogram()
 	return histogram;
 }
 
-Mat* Hog::ApplyConvolution(double** kernel, int kernelSize)
+Mat* Hog::applyConvolution(double** kernel, int kernelSize)
 {
-	int rows = (*current).rows;
-	int cols = (*current).cols;
+	int rows = (*_current).rows;
+	int cols = (*_current).cols;
 
 	for (int y = 0; y < rows; y++)
 	{
@@ -215,7 +215,7 @@ Mat* Hog::ApplyConvolution(double** kernel, int kernelSize)
 					if (x + kx >= cols)
 						continue;
 
-					Vec3b pxl = (*current).ptr<Vec3b>(y + ky)[x + kx];
+					Vec3b pxl = (*_current).ptr<Vec3b>(y + ky)[x + kx];
 					float maskValue = kernel[ky][kx];
 
 					sumR += pxl[0] * maskValue;
@@ -224,14 +224,14 @@ Mat* Hog::ApplyConvolution(double** kernel, int kernelSize)
 				}
 			}
 
-			(*current).ptr<Vec3b>(y)[x] = Vec3b(sumR, sumG, sumB);
+			(*_current).ptr<Vec3b>(y)[x] = Vec3b(sumR, sumG, sumB);
 		}
 	}
 
-	return current;
+	return _current;
 }
 
-double** Hog::CreateGaussianKernel(int kernelSize, double sigma)
+double** Hog::createGaussianKernel(int kernelSize, double sigma)
 {
 	double** kernel = new double* [kernelSize];
 
@@ -245,7 +245,7 @@ double** Hog::CreateGaussianKernel(int kernelSize, double sigma)
 	{
 		for (int x = -indent; x <= indent; x++)
 		{
-			double value = Guassian(x, y, sigma);
+			double value = guassian(x, y, sigma);
 			sum += value;
 			kernel[y + indent][x + indent] = value;
 		}
@@ -260,12 +260,12 @@ double** Hog::CreateGaussianKernel(int kernelSize, double sigma)
 	return kernel;
 }
 
-double Hog::Guassian(int x, int y, double sigma)
+double Hog::guassian(int x, int y, double sigma)
 {
 	return (1 / (2 * PI * pow(sigma, 2))) * exp(-((x * x + y * y) / (2 * pow(sigma, 2))));
 }
 
-double** Hog::Transpose(double** matrix, int rows, int cols)
+double** Hog::transpose(double** matrix, int rows, int cols)
 {
 	double** res = new double* [cols];
 
@@ -279,10 +279,10 @@ double** Hog::Transpose(double** matrix, int rows, int cols)
 	return res;
 }
 
-void Hog::ApplySobelMask(int x, int y, double** mask, int* r, int* g, int* b)
+void Hog::applySobelMask(int x, int y, double** mask, int* r, int* g, int* b)
 {
-	int rows = gray.rows;
-	int cols = gray.cols;
+	int rows = _gray.rows;
+	int cols = _gray.cols;
 
 	for (int ym = 0, ky = -1; ky <= 1; ky++, ym++)
 	{
@@ -292,7 +292,7 @@ void Hog::ApplySobelMask(int x, int y, double** mask, int* r, int* g, int* b)
 		if (y + ky >= rows)
 			continue;
 
-		Vec3b* pxls = gray.ptr<Vec3b>(y + ky);
+		Vec3b* pxls = _gray.ptr<Vec3b>(y + ky);
 
 		for (int xm = 0, kx = -1; kx <= 1; kx++, xm++)
 		{

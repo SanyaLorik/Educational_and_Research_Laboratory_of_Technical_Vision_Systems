@@ -23,19 +23,19 @@ private:
 	double const PI = 3.1415926535f;
 	const int SIZE_IN_CELL = 9;
 
-	Mat original;
-	Mat gray;
-	Mat* current;
-	Cell* cells;
-	Block* blocks;
+	Mat _original;
+	Mat _gray;
+	Mat* _current;
+	Cell* _cells;
+	Block* _blocks;
 
-	int cellRows;
-	int cellCols;
-	int rate = 8;
+	int _cell_rows;
+	int _cell_cols;
+	int _rate = 8;
 
-	int blockRows;
-	int blockCols;
-	int blockSize = 2;
+	int _block_rows;
+	int _block_cols;
+	int _block_size = 2;
 
 public:
 
@@ -43,29 +43,29 @@ public:
 
 	Hog(string fullPath);
 
-	void CropOriginal(int rate = 8, int blockSize = 2);
+	void cropOriginal(int rate = 8, int blockSize = 2);
 
-	Mat* GetCurrentMat();
+	Mat* getCurrentMat();
 
-	Mat* GrayScaleUsingAvarage();
+	Mat* grayScaleUsingAvarage();
 
-	Mat* Gauss(int kernelSize, double sigma);
+	Mat* gauss(int kernelSize, double sigma);
 
-	Mat* Sobel();
+	Mat* sobel();
 
-	void FillBlocks();
+	void fillBlocks();
 
-	float* GetHistogram();
+	float* getHistogram();
 
 private:
 
-	Mat* ApplyConvolution(double** kernel, int kernelSize);
+	Mat* applyConvolution(double** kernel, int kernelSize);
 
-	double** CreateGaussianKernel(int kernelSize, double sigma);
+	double** createGaussianKernel(int kernelSize, double sigma);
 
-	double Guassian(int x, int y, double sigma);
+	double guassian(int x, int y, double sigma);
 
-	double** Transpose(double** matrix, int rows, int cols);
+	double** transpose(double** matrix, int rows, int cols);
 
-	void ApplySobelMask(int x, int y, double** mask, int* r, int* g, int* b);
+	void applySobelMask(int x, int y, double** mask, int* r, int* g, int* b);
 };

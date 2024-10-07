@@ -1,6 +1,6 @@
 #include "PixelCharacteristics.h"
 
-PixelCharacteristics::PixelCharacteristics(int magnitude, int orientation) : magnitude(magnitude)
+PixelCharacteristics::PixelCharacteristics(int magnitude, int orientation) : Magnitude(magnitude)
 {
-	this->orientation = orientation < 0 ? orientation + 180 : orientation;
+	this->Orientation = orientation < 0 ? orientation + 180 : orientation;
 }

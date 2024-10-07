@@ -2,7 +2,7 @@
 
 HistogramValue::HistogramValue(short value) : Value(value) {}
 
-void HistogramValue::Add() 
+void HistogramValue::add() 
 {
     Count++;
 }
