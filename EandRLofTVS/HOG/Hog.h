@@ -37,6 +37,8 @@ private:
 	int _block_cols;
 	int _block_size = 2;
 
+	int _length_histogram;
+
 public:
 
 	Hog(Mat* mat);
@@ -56,6 +58,8 @@ public:
 	void fillBlocks();
 
 	float* getHistogram();
+
+	int getLengthHistogram();
 
 private:
 

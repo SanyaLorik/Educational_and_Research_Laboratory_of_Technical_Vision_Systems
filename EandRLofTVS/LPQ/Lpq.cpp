@@ -44,7 +44,8 @@ void Lpq::inverse_fft2D() {
 
     // Îבנאעםמו ÁÏÔ ןמ סעמכבצאל
     vector<vector<ComplexNS>> inverse_F(rows, vector<ComplexNS>(cols));
-    for (int j = 0; j < cols; j++) {
+    for (int j = 0; j < cols; j++)
+    {
         vector<ComplexNS> column(rows);
         for (int i = 0; i < rows; i++)
             column[i] = _forward[i][j];
@@ -62,10 +63,11 @@ void Lpq::inverse_fft2D() {
     transformToReal(inverse_F);
 }
 
-vector<ComplexNS> Lpq::inverse_fft(const vector<ComplexNS>& input) {
+vector<ComplexNS> Lpq::inverse_fft(const vector<ComplexNS>& input) 
+{
     int n = input.size();
-
     vector<ComplexNS> output = recursive_fft(input);
+
     for (int i = 0; i < n; i++)
         output[i] = output[i] * (1.0 / n);
 
@@ -130,7 +132,8 @@ void Lpq::fft2D(vector<vector<ComplexNS>>& window, int kernelSize)
         window[i] = recursive_fft(window[i]);
 
     // ÁÏÔ ןמ סעמכבצאל
-    for (int j = 0; j < kernelSize; j++) {
+    for (int j = 0; j < kernelSize; j++) 
+    {
         vector<ComplexNS> column(kernelSize);
         for (int i = 0; i < kernelSize; i++)
             column[i] = window[i][j];
@@ -150,8 +153,8 @@ vector<int> Lpq::get_local_histogram(const vector<vector<ComplexNS>>& fft2d)
     {
         for (int x = 0; x < fft2d[y].size(); x++)
         {
-            float phase_value = fft2d[y][x].phase();
-            int index = static_cast<int>(fmod(phase_value / ratio + SEGMENT, SEGMENT));
+            float phase = fft2d[y][x].phase();
+            int index = (int)(fmod(phase / ratio + SEGMENT, SEGMENT));
             histogram[index]++;
         }
     }

@@ -9,9 +9,9 @@
 using namespace std;
 using namespace cv;
 
-int main() {
-    
-    const string name = "C:/sobel_1.jpg";
+int main()
+{
+    const string name = "C:/sobel.jpg";
     Lpq lpq(name);
     lpq.calculalte_fft2d();
     lpq.calculalte_inverse_fft2D();

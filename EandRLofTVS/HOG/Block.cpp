@@ -48,7 +48,6 @@ float* Block::NormalizeHistogram()
     for (int i = 0; i < size; i++)
         sum += Histogram[i];
 
-
     for (int i = 0; i < size; i++)
         Histogram[i] /= sum;
 

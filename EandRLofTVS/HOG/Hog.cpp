@@ -164,8 +164,8 @@ float* Hog::getHistogram()
 	* может быть очищать паммять
 	* delete[] blockHistogram;
 	*/
-	int lengtHistogram = (_block_rows * _block_cols) * (_block_size * _block_size) * SIZE_IN_CELL;
-	float* histogram = new float[lengtHistogram];
+	int lengthHistogram = (_block_rows * _block_cols) * (_block_size * _block_size) * SIZE_IN_CELL;
+	float* histogram = new float[lengthHistogram];
 	int lengthBlock = _block_rows * _block_cols;
 
 	int index = 0;
@@ -183,7 +183,14 @@ float* Hog::getHistogram()
 		}
 	}
 
+	_length_histogram = lengthHistogram;
+
 	return histogram;
+}
+
+int Hog::getLengthHistogram()
+{
+	return _length_histogram;
 }
 
 Mat* Hog::applyConvolution(double** kernel, int kernelSize)
