@@ -10,11 +10,10 @@
 using namespace std;
 using namespace cv;
 
-// Ядро CUDA для вычисления LBP
 __global__ void calculate_lbp(const uchar* input_image, int* output_codes, int* histogram, int width_image, int height_image, int radius_neighbors, int count_neighbors)
 {
-    int x = blockIdx.x * blockDim.x + threadIdx.x; // Координата x текущего пикселя
-    int y = blockIdx.y * blockDim.y + threadIdx.y; // Координата y текущего пикселя
+    int x = blockIdx.x * blockDim.x + threadIdx.x; // текущего пикселя
+    int y = blockIdx.y * blockDim.y + threadIdx.y; // текущего пикселя
 
     if (x >= width_image || y >= height_image)
         return;
@@ -45,7 +44,7 @@ __global__ void calculate_lbp(const uchar* input_image, int* output_codes, int* 
 
 int main()
 {
-    Mat image = imread("C:/sobel.jpg", IMREAD_GRAYSCALE);
+    Mat image = imread("C:/sct.jpg", IMREAD_GRAYSCALE);
 
     int radius_neighbors = 1;
     int count_neighbors = 8; 
@@ -53,23 +52,23 @@ int main()
     int blocks_x = (image.cols + 31) / 32; 
     int blocks_y = (image.rows + 31) / 32;
 
-    uchar* d_input;
-    cudaMalloc(&d_input, image.total() * sizeof(uchar));
-    cudaMemcpy(d_input, image.data, image.total() * sizeof(uchar), cudaMemcpyHostToDevice);
+    uchar* d_input_image;
+    cudaMalloc(&d_input_image, image.total() * sizeof(uchar));
+    cudaMemcpy(d_input_image, image.data, image.total() * sizeof(uchar), cudaMemcpyHostToDevice);
 
-    int* d_output;
-    cudaMalloc(&d_output, image.total() * sizeof(int));
+    int* d_output_code;
+    cudaMalloc(&d_output_code, image.total() * sizeof(int));
 
     int size_histogram = 256;
     int* d_histogram;
     cudaMalloc(&d_histogram, size_histogram * sizeof(int));
 
-    calculate_lbp <<<dim3(blocks_x, blocks_y), dim3(32, 32)>>>(d_input, d_output, d_histogram, image.cols, image.rows, radius_neighbors, count_neighbors);
+    calculate_lbp <<<dim3(blocks_x, blocks_y), dim3(32, 32)>>>(d_input_image, d_output_code, d_histogram, image.cols, image.rows, radius_neighbors, count_neighbors);
 
-    int* h_output = new int[image.total()];
+    int* h_output_code = new int[image.total()];
     int* h_histogram = new int[size_histogram];
 
-    cudaMemcpy(h_output, d_output, image.total() * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_output_code, d_output_code, image.total() * sizeof(int), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_histogram, d_histogram, size_histogram * sizeof(int), cudaMemcpyDeviceToHost);
 
     Mat output_image = Mat(image.size(), CV_8UC1);
@@ -77,14 +76,14 @@ int main()
     {
         uchar* pixels = output_image.ptr<uchar>(y);
         for (int x = 0; x < image.cols; x++)
-            pixels[x] = h_output[y * image.cols + x];
+            pixels[x] = h_output_code[y * image.cols + x];
     }
 
-    cudaFree(d_input);
-    cudaFree(d_output);
+    cudaFree(d_input_image);
+    cudaFree(d_output_code);
 
     delete[] h_histogram;
-    delete[] h_output;
+    delete[] h_output_code;
 
     cv::imshow("image", output_image);
     cv::waitKey(0);
