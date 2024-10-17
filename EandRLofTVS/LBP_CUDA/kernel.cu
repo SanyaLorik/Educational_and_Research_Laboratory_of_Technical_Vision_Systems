@@ -26,8 +26,8 @@ __global__ void calculate_lbp(const uchar* input_image, int* output_codes, int* 
     for (int n = 0; n < count_neighbors; n++)
     {
         double angle = 2 * M_PI * n / count_neighbors;
-        int neighbor_x = x + radius_neighbors * cos(angle);
-        int neighbor_y = y + radius_neighbors * sin(angle);
+        int neighbor_x = x + radius_neighbors * nearbyint(cos(angle));
+        int neighbor_y = y + radius_neighbors * nearbyint(sin(angle));
 
         if (neighbor_x >= 0 && neighbor_x < width_image && neighbor_y >= 0 && neighbor_y < height_image)
         {
