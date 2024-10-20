@@ -149,13 +149,11 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\crt\math_functi
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\crt\sm_70_rt.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\crt\sm_80_rt.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\crt\sm_90_rt.h
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_device_runtime_api.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_fp16.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_fp16.hpp
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_runtime.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_runtime_api.h
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_texture_types.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\device_atomic_functions.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\device_launch_parameters.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\device_types.h
@@ -176,7 +174,6 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\sm_60_atomic_fu
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\sm_61_intrinsics.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\surface_indirect_functions.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\surface_types.h
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\texture_fetch_functions.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\texture_indirect_functions.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\texture_types.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\vector_functions.h

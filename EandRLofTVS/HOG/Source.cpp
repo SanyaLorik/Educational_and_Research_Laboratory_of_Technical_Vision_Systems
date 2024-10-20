@@ -16,13 +16,13 @@ int main()
 
 	Hog hog(name);
 
-	int kernelSize = 3;
-	double sigma = 1;
+	int kernelSize = 5;
+	double sigma = 8;
 	int rate = 8;
 
 	hog.grayScaleUsingAvarage();
 	hog.gauss(kernelSize, sigma);
-	hog.sobel();
+	//hog.sobel();
 
 	imshow("—жатчик", *hog.getCurrentMat());
 	int k = waitKey(0);

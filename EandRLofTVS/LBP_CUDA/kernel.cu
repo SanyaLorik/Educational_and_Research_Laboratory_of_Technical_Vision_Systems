@@ -1,9 +1,12 @@
-ï»¿#include <opencv2/core.hpp>
+#include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
 #include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <texture_fetch_functions.h> 
 #include <cuda_fp16.h>
+#include <cuda.h>
 
 #include <iostream>
 
@@ -12,8 +15,8 @@ using namespace cv;
 
 __global__ void calculate_lbp(const uchar* input_image, int* output_codes, int* histogram, int width_image, int height_image, int radius_neighbors, int count_neighbors)
 {
-    int x = blockIdx.x * blockDim.x + threadIdx.x; // Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ð¸ÐºÑÐµÐ»Ñ
-    int y = blockIdx.y * blockDim.y + threadIdx.y; // Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ð¸ÐºÑÐµÐ»Ñ
+    int x = blockIdx.x * blockDim.x + threadIdx.x; // òåêóùåãî ïèêñåëÿ
+    int y = blockIdx.y * blockDim.y + threadIdx.y; // òåêóùåãî ïèêñåëÿ
 
     if (x >= width_image || y >= height_image)
         return;
@@ -42,14 +45,42 @@ __global__ void calculate_lbp(const uchar* input_image, int* output_codes, int* 
     atomicAdd(number, 1);
 }
 
+__global__ void gauss(const uchar* input_image, uchar* output_iamge, const float** kernel, int kernelSize, int width_image, int height_image)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x >= width_image || y >= height_image)
+        return;
+
+    int centre = y * width_image + x;
+    int sumColor = 0;
+
+    for (int kx = 0; kx < kernelSize; kx++)
+    {
+        for (int ky = 0; ky < kernelSize; ky++)
+        {
+            if ((x + kx) >= 0 && (x + kx) < width_image && (y + ky) >= 0 && (y + ky) < height_image)
+            {
+                int offset = (y + ky) * width_image + (x + kx);
+
+                float maskValue = kernel[ky][kx];
+                sumColor += input_image[offset] * maskValue;
+            }
+        }
+    }
+
+    output_iamge[centre] = sumColor;
+}
+
 int main()
 {
-    Mat image = imread("C:/sct.jpg", IMREAD_GRAYSCALE);
+    Mat image = imread("C:/sobel.jpg", IMREAD_GRAYSCALE);
 
     int radius_neighbors = 1;
-    int count_neighbors = 8; 
+    int count_neighbors = 8;
 
-    int blocks_x = (image.cols + 31) / 32; 
+    int blocks_x = (image.cols + 31) / 32;
     int blocks_y = (image.rows + 31) / 32;
 
     uchar* d_input_image;
@@ -63,7 +94,9 @@ int main()
     int* d_histogram;
     cudaMalloc(&d_histogram, size_histogram * sizeof(int));
 
-    calculate_lbp <<<dim3(blocks_x, blocks_y), dim3(32, 32)>>>(d_input_image, d_output_code, d_histogram, image.cols, image.rows, radius_neighbors, count_neighbors);
+    calculate_lbp << <dim3(blocks_x, blocks_y), dim3(32, 32) >> > (
+        d_input_image, d_output_code, d_histogram, 
+        image.cols, image.rows, radius_neighbors, count_neighbors);
 
     int* h_output_code = new int[image.total()];
     int* h_histogram = new int[size_histogram];

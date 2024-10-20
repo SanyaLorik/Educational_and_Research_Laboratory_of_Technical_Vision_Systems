@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D0A710C9-1E82-4C88-A8F1-BC4CD6909F78}</ProjectGuid>
-    <RootNamespace>LBP_CUDA</RootNamespace>
+    <ProjectGuid>{68D00E1A-BC62-4C73-880C-A60A53C2A8E4}</ProjectGuid>
+    <RootNamespace>HOG_CUDA</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -57,7 +57,6 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_72,sm_72</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
