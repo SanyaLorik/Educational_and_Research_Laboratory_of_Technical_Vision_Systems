@@ -22,7 +22,7 @@ int main()
 
 	hog.grayScaleUsingAvarage();
 	hog.gauss(kernelSize, sigma);
-	//hog.sobel();
+	hog.sobel();
 
 	imshow("—жатчик", *hog.getCurrentMat());
 	int k = waitKey(0);
