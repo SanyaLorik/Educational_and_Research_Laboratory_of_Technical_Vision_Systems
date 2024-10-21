@@ -13,8 +13,18 @@
 using namespace std;
 using namespace cv;
 
+__global__ void myKernel(cudaTextureObject_t texObj, int width, int height) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height) {
+        float value = tex2D<float>(texObj, x, y);
+        // Обработка значения
+    }
+}
+
 __global__ void gauss(
-    const uchar* input_image, uchar* output_image, float** kernel, 
+    const uchar* input_image, uchar* output_image, float* kernel, 
     int kernelSize, int width_image, int height_image)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -34,17 +44,16 @@ __global__ void gauss(
             {
                 int offset = (y + ky) * width_image + (x + kx);
 
-                float maskValue = kernel[ky][kx];
+                float maskValue = kernel[ky * kernelSize + kx];
                 sumColor += input_image[offset] * maskValue;
             }
         }
     }
 
-    //output_image[centre] = 9;
     output_image[centre] = (uchar)sumColor;
 }
 
-float** createGaussianKernel(int kernelSize, double sigma);
+float* createGaussianKernel(int kernelSize, double sigma);
 
 float guassian(int x, int y, double sigma);
 
@@ -52,9 +61,9 @@ int main()
 {
     Mat image = imread("C:/sobel.jpg", IMREAD_GRAYSCALE);
 
-    int kernelSize = 5;
-    double sigma = 8;
-    float** kernel = createGaussianKernel(kernelSize, sigma);
+    int kernelSize = 3;
+    double sigma = 1;
+    float* kernel = createGaussianKernel(kernelSize, sigma);
 
     int block_y = (image.rows + 31) / 32;
     int block_x = (image.cols + 31) / 32;
@@ -66,7 +75,7 @@ int main()
     uchar* d_output_image;
     cudaMalloc(&d_output_image, image.total() * sizeof(uchar));
 
-    float** d_kernel;
+    float* d_kernel;
     cudaMalloc(&d_kernel, kernelSize * kernelSize * sizeof(float));
     cudaMemcpy(d_kernel, kernel, kernelSize * kernelSize * sizeof(float), cudaMemcpyHostToDevice);
 
@@ -78,13 +87,6 @@ int main()
 
     cudaMemcpy(h_output_image, d_output_image, image.total() * sizeof(uchar), cudaMemcpyDeviceToHost);
     
-    /*
-    for (int i = 0; i < image.total(); i++)
-    {
-        cout << h_output_image[i] << " ";
-    }
-    */
-
     Mat output_image = Mat(image.size(), CV_8UC1);
     for (int y = 0; y < image.rows; y++)
     {
@@ -105,31 +107,25 @@ int main()
     return 0;
 }
 
-float** createGaussianKernel(int kernelSize, double sigma)
+float* createGaussianKernel(int kernelSize, double sigma) 
 {
-    float** kernel = new float* [kernelSize];
-
-    for (size_t i = 0; i < kernelSize; i++)
-        kernel[i] = new float[kernelSize];
+    float* kernel = new float[kernelSize * kernelSize];
 
     int indent = kernelSize / 2;
     float sum = 0.0f;
 
     for (int y = -indent; y <= indent; y++)
     {
-        for (int x = -indent; x <= indent; x++)
+        for (int x = -indent; x <= indent; x++) 
         {
             float value = guassian(x, y, sigma);
             sum += value;
-            kernel[y + indent][x + indent] = value;
+            kernel[(y + indent) * kernelSize + (x + indent)] = value;
         }
     }
 
-    for (size_t i = 0; i < kernelSize; i++)
-    {
-        for (size_t j = 0; j < kernelSize; j++)
-            kernel[i][j] /= sum;
-    }
+    for (int i = 0; i < kernelSize * kernelSize; i++) 
+        kernel[i] /= sum;
 
     return kernel;
 }
