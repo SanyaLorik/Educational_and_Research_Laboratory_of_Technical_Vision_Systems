@@ -67,6 +67,53 @@ __global__ void gauss(
     output_image[centre] = (uchar)sumColor;
 }
 
+__global__ void sobel(
+    const cudaTextureObject_t input_image, uchar* output_image,
+    int width_image, int height_image)
+{
+    const int x = blockIdx.x * blockDim.x + threadIdx.x;
+    const int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    const int kernelSize = 3;
+    const int indent = -kernelSize / 2;
+
+    const char mask_x[kernelSize][kernelSize] =
+    {
+        { 1, 0, -1 },
+        { 2, 0, -2 },
+        { 1, 0, -1 }
+    };
+
+    const char mask_y[kernelSize][kernelSize] =
+    {
+        { 1, 2, 1 },
+        { 0, 0, 0 },
+        { -1, -2, -1 }
+    };
+
+    short color_x = 0;
+    short color_y = 0;
+
+    for (int ky = 0; ky < kernelSize; ky++)
+    {
+        for (int kx = 0; kx < kernelSize; kx++)
+        {
+            uchar pxlColor = tex2D<uchar>(input_image, x + kx + indent, y + ky + indent);
+
+            short maskValue_x = mask_x[ky][kx];
+            short maskValue_y = mask_y[ky][kx];
+
+            color_x += maskValue_x * pxlColor;
+            color_y += maskValue_y * pxlColor;
+        }
+    }
+
+    uchar color = sqrtf(color_x * color_x + color_y * color_y);
+
+    int centre = y * width_image + x;
+    output_image[centre] = color;
+}
+
 float* createGaussianKernel(int kernelSize, double sigma);
 
 float guassian(int x, int y, double sigma);
@@ -75,8 +122,8 @@ int main()
 {
     Mat image = imread("C:/sobel.jpg", IMREAD_GRAYSCALE);
 
-    int kernelSize = 11;
-    double sigma = 8;
+    int kernelSize = 3;
+    double sigma = 1;
     float* kernel = createGaussianKernel(kernelSize, sigma);
 
     int block_y = (image.rows + 31) / 32;
@@ -93,17 +140,9 @@ int main()
     cudaMalloc(&d_kernel, kernelSize * kernelSize * sizeof(float));
     cudaMemcpy(d_kernel, kernel, kernelSize * kernelSize * sizeof(float), cudaMemcpyHostToDevice);
 
-    cudaTextureObject_t texObj;
-
-    cudaArray* d_array;
-    cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<uchar>();
-    cudaMallocArray(&d_array, &channelDesc, image.cols, image.rows);
-    
-    cudaMemcpyToArray(d_array, 0, 0, image.data, image.total() * sizeof(uchar), cudaMemcpyHostToDevice);
-
-    cudaResourceDesc resDesc = {};
-    resDesc.resType = cudaResourceTypeArray;
-    resDesc.res.array.array = d_array;
+    //
+    // ---------- General Settings Open ----------
+    //
 
     cudaTextureDesc texDesc = {};
     texDesc.addressMode[0] = cudaAddressModeClamp;
@@ -112,16 +151,63 @@ int main()
     texDesc.readMode = cudaReadModeElementType;
     texDesc.normalizedCoords = 0;
 
-    cudaCreateTextureObject(&texObj, &resDesc, &texDesc, nullptr);
+    //
+    // ---------- General Settings Close ----------
+    //
+
+    // 
+    // ---------- Gauss Open ---------
+    //
+
+    cudaTextureObject_t gaussTex;
+    cudaArray* d_gauss_array;
+    cudaChannelFormatDesc gaussChannelDesc = cudaCreateChannelDesc<uchar>();
+    cudaMallocArray(&d_gauss_array, &gaussChannelDesc, image.cols, image.rows);
+    
+    cudaMemcpyToArray(d_gauss_array, 0, 0, image.data, image.total() * sizeof(uchar), cudaMemcpyHostToDevice);
+
+    cudaResourceDesc gaussResDesc = {};
+    gaussResDesc.resType = cudaResourceTypeArray;
+    gaussResDesc.res.array.array = d_gauss_array;
+
+    cudaCreateTextureObject(&gaussTex, &gaussResDesc, &texDesc, nullptr);
 
     gauss <<<dim3(block_x, block_y), dim3(32, 32)>>> (
-        texObj, d_output_image, d_kernel,
+        gaussTex, d_output_image, d_kernel,
         kernelSize, image.cols, image.rows);
 
-    uchar* h_output_image = new uchar[image.total()];
+    //
+    // ---------- Gauss Close ---------
+    //
 
+    //
+    // ---------- Sobel Open ---------
+    //
+
+    cudaTextureObject_t sobelTex;
+    cudaArray* d_sobel_array;
+    cudaChannelFormatDesc sobelChannelDesc = cudaCreateChannelDesc<uchar>();
+    cudaMallocArray(&d_sobel_array, &sobelChannelDesc, image.cols, image.rows);
+
+    cudaMemcpyToArray(d_sobel_array, 0, 0, d_output_image, image.total() * sizeof(uchar), cudaMemcpyDeviceToDevice);
+
+    cudaResourceDesc sobelResDesc = {};
+    sobelResDesc.resType = cudaResourceTypeArray;
+    sobelResDesc.res.array.array = d_sobel_array;
+
+    cudaCreateTextureObject(&sobelTex, &sobelResDesc, &texDesc, nullptr);
+
+    sobel <<<dim3(block_x, block_y), dim3(32, 32)>>> (
+        sobelTex, d_output_image,
+        image.cols, image.rows);
+
+    //
+    // ---------- Sobel Close ---------
+    //
+
+    uchar* h_output_image = new uchar[image.total()];
     cudaMemcpy(h_output_image, d_output_image, image.total() * sizeof(uchar), cudaMemcpyDeviceToHost);
-    
+
     Mat output_image = Mat(image.size(), CV_8UC1);
     for (int y = 0; y < image.rows; y++)
     {
